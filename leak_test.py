@@ -68,19 +68,20 @@ class ProblemInstance:
 					if isleaf(i, self.neighbours):
 						cplus[i] = c_closed
 					c[i] = c_closed
-				#####  CHECK IF THE FOLLOWING LINE IS CORRECT #######
+					d[i] = d_closed
+				
+				for i in self.neighbours:
 					if self.distance[i] > distance_threshold:
 						d[i] = d_open
-					else:
-						d[i] = d_closed
-			
+						if isleaf(i, self.neighbours):
+							cplus[i] = c_open
+						print self.neighbours[i]
+						for j in self.neighbours[i]:
+							if j > i:
+								c[j] = c_open
 						
-			'''			
-			######## TEMPORARY SO THAT THIS STILL WORKS !!!!!!!!!!
-			d = d_open
-			c = c_open
-			######## END TEMPORARY
-			'''
+						
+			
 		
 			# f from system model
 			def f(x,y):
@@ -95,21 +96,9 @@ class ProblemInstance:
 					return -sqrt(x - z_off)
 				else:
 					return 0
-			'''
-			# velocity vector to be returned
-			dx = zeros(n+1)
-			for i in self.neighbours:
-				if i == 0 or i == self.n:
-					dx[i] = 0
-				else:
-					dx[i] = d*g(x[i])
-					for j in self.neighbours[i]:
-						dx[i] = dx[i] + c*f(x[i],x[j])
-					# add link to exterior if i is a leaf
-					if isleaf(i, self.neighbours):
-						dx[i] = dx[i] + c_closed*f(x[i], x[self.n])
-			dx[self.n] = 0
-			'''
+			
+		#c, cplus, d = flow_rates(t, c_open, c_closed, d_open, d_closed)
+		
 			
 			# velocity vector to be returned
 			dx = zeros(self.n+1)
@@ -129,8 +118,8 @@ class ProblemInstance:
 					if isleaf(i, self.neighbours):
 						dx[i] = dx[i] + cplus[i]*f(x[i], x[self.n])
 			
-			
-
+			print t
+			print c
 			return dx
 
 		self.f = sys
@@ -175,7 +164,7 @@ class SimulationTrace:
 	def plot(self):
 		ax = p.plot(self.t,self.x)
 		p.legend(ax)
-		p.axis([0, 30, 0, 3])
+		p.axis([0, 40, 0, 3])
 		p.show()
 
 
@@ -187,6 +176,10 @@ def isleaf(i, neighbours):
 		return True
 	else:
 		return False
+
+# The helper function flow_rates computes the flows through each valve based on whether valves are open or closed at time t
+
+
 
 
 n = 5;            # system dimension
